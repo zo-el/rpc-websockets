@@ -10,4 +10,10 @@ interface IRPCError {
  * @return {Object}
  */
 declare function createError(code: number, details?: string): IRPCError;
-export { createError };
+/**
+ * Creates a ArrayBuffer from a uInt8Array.
+ * @param {Uint8Array} array - data
+ * @return {ArrayBuffer}
+ */
+declare function typedArrayToBuffer(array: Uint8Array): ArrayBuffer;
+export { createError, typedArrayToBuffer };

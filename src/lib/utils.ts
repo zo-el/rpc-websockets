@@ -37,4 +37,14 @@ function createError(code: number, details?: string)
     return error
 }
 
-export { createError }
+/**
+ * Creates a ArrayBuffer from a uInt8Array.
+ * @param {Uint8Array} array - data
+ * @return {ArrayBuffer}
+ */
+function typedArrayToBuffer(array: Uint8Array): ArrayBuffer
+{
+    return array.buffer.slice(array.byteOffset, array.byteLength + array.byteOffset)
+}
+
+export { createError, typedArrayToBuffer }

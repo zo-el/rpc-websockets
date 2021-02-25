@@ -25,4 +25,12 @@ function createError(code, details) {
         error["data"] = details;
     return error;
 }
-export { createError };
+/**
+ * Creates a ArrayBuffer from a uInt8Array.
+ * @param {Uint8Array} array - data
+ * @return {ArrayBuffer}
+ */
+function typedArrayToBuffer(array) {
+    return array.buffer.slice(array.byteOffset, array.byteLength + array.byteOffset);
+}
+export { createError, typedArrayToBuffer };

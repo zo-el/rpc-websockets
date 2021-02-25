@@ -9,13 +9,14 @@
 import NodeWebSocket from "ws"
 // @ts-ignore
 import { EventEmitter } from "eventemitter3"
-import CircularJSON from "circular-json"
+// import CircularJSON from "circular-json"
 import {
     ICommonWebSocket,
     IWSClientAdditionalOptions,
     NodeWebSocketType,
     ICommonWebSocketFactory
 } from "./client/client.types"
+import msgpack from "tiny-msgpack"
 
 interface IQueueElement {
     promise: [
@@ -144,13 +145,12 @@ export default class CommonClient extends EventEmitter
             const rpc_id = this.generate_request_id(method, params)
 
             const message = {
-                jsonrpc: "2.0",
                 method: method,
                 params: params || null,
                 id: rpc_id
             }
 
-            this.socket.send(JSON.stringify(message), ws_opts, (error) =>
+            this.socket.send(msgpack.encode(message), ws_opts, (error) =>
             {
                 if (error)
                     return reject(error)
@@ -208,12 +208,12 @@ export default class CommonClient extends EventEmitter
                 return reject(new Error("socket not ready"))
 
             const message = {
-                jsonrpc: "2.0",
+                // jsonrpc: "2.0",
                 method: method,
                 params: params || null
             }
 
-            this.socket.send(JSON.stringify(message), (error) =>
+            this.socket.send(msgpack.encode(message), (error) =>
             {
                 if (error)
                     return reject(error)
@@ -299,10 +299,10 @@ export default class CommonClient extends EventEmitter
 
         this.socket.addEventListener("message", ({data: message}) =>
         {
-            if (message instanceof ArrayBuffer)
-                message = Buffer.from(message).toString()
+            // if (message instanceof ArrayBuffer)
+            //     message = Buffer.from(message).toString()
 
-            try { message = CircularJSON.parse(message) }
+            try { message = msgpack.decode(message) }
 
             catch (error) { return }
 
