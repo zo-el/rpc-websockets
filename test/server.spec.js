@@ -788,597 +788,512 @@ describe("Server", function()
                 })
             })
 
-            // it("should respond with -32700 when called with invalid JSON", function(done)
-            // {
-            //     connect(port, host).then(function(ws)
-            //     {
-            //         const data =
-            //                     "[{\"jsonrpc\": \"2.0\", \"method\": \"sum\", \"params\": [1,2,4], \"id\": \"1\"}, " +
-            //                     "{\"jsonrpc\": \"2.0\", \"method\""
-            //
-            //         ws.send(data)
-            //
-            //         ws.on("message", function(message)
-            //         {
-            //             message = msgpack.decode(message)
-            //             message.error.code.should.equal(-32700)
-            //             message.error.message.should.equal("Parse error")
-            //
-            //             rpc_id++
-            //             ws.close()
-            //             done()
-            //         })
-            //
-            //         ws.once("error", function(error)
-            //         {
-            //             done(error)
-            //         })
-            //     })
-            // })
+            it("should respond with -32700 when called with invalid JSON", function(done)
+            {
+                connect(port, host).then(function(ws)
+                {
+                    const data =
+                                "[{\"jsonrpc\": \"2.0\", \"method\": \"sum\", \"params\": [1,2,4], \"id\": \"1\"}, " +
+                                "{\"jsonrpc\": \"2.0\", \"method\""
 
-            //         it("should respond with -32600 when called with an empty array", function(done)
-            //         {
-            //             connect(port, host).then(function(ws)
-            //             {
-            //                 ws.send("[]")
-            //
-            //                 ws.on("message", function(message)
-            //                 {
-            //                     message = msgpack.decode(message)
-            //                     message.error.code.should.equal(-32600)
-            //                     message.error.message.should.equal("Invalid Request")
-            //
-            //                     rpc_id++
-            //                     ws.close()
-            //                     done()
-            //                 })
-            //
-            //                 ws.once("error", function(error)
-            //                 {
-            //                     done(error)
-            //                 })
-            //             })
-            //         })
-            //
-            //         it("should respond with -32600 when called with invalid non-empty array", function(done)
-            //         {
-            //             connect(port, host).then(function(ws)
-            //             {
-            //                 ws.send("[1]")
-            //
-            //                 ws.on("message", function(message)
-            //                 {
-            //                     message = msgpack.decode(message)
-            //                     message.should.be.an("array")
-            //                     message[0].error.code.should.equal(-32600)
-            //                     message[0].error.message.should.equal("Invalid Request")
-            //
-            //                     rpc_id++
-            //                     ws.close()
-            //                     done()
-            //                 })
-            //
-            //                 ws.once("error", function(error)
-            //                 {
-            //                     done(error)
-            //                 })
-            //             })
-            //         })
-            //
-            //         it("should respond with -32600 when called with invalid data", function(done)
-            //         {
-            //             connect(port, host).then(function(ws)
-            //             {
-            //                 ws.send("[1,2,3]")
-            //
-            //                 ws.on("message", function(message)
-            //                 {
-            //                     message = msgpack.decode(message)
-            //                     message.should.be.an("array")
-            //                     message[0].error.code.should.equal(-32600)
-            //                     message[0].error.message.should.equal("Invalid Request")
-            //
-            //                     rpc_id++
-            //                     ws.close()
-            //                     done()
-            //                 })
-            //
-            //                 ws.once("error", function(error)
-            //                 {
-            //                     done(error)
-            //                 })
-            //             })
-            //         })
-            //
-            //         it("should receive all notifications", function(done)
-            //         {
-            //             connect(port, host).then(function(ws)
-            //             {
-            //                 ws.send(msgpack.encode([
-            //                     {
-            //                         jsonrpc: "2.0",
-            //                         method: "greet",
-            //                         params: "Charles"
-            //                     },
-            //                     {
-            //                         jsonrpc: "2.0",
-            //                         method: "sum",
-            //                         params: [1, 2, 4]
-            //                     },
-            //                     {
-            //                         jsonrpc: "2.0",
-            //                         method: "subtract",
-            //                         params: [50, 29]
-            //                     }]), done)
-            //
-            //                 ws.once("error", function(error)
-            //                 {
-            //                     done(error)
-            //                 })
-            //             })
-            //         })
+                    ws.send(msgpack.encode(data))
+
+                    ws.on("message", function(message)
+                    {
+                        message = msgpack.decode(message)
+                        message.error.code.should.equal(-32602)
+                        message.error.message.should.equal("Invalid params")
+
+                        rpc_id++
+                        ws.close()
+                        done()
+                    })
+
+                    ws.once("error", function(error)
+                    {
+                        done(error)
+                    })
+                })
+            })
+
+            it("should receive all notifications", function(done)
+            {
+                connect(port, host).then(function(ws)
+                {
+                    ws.send(msgpack.encode([
+                        {
+                            jsonrpc: "2.0",
+                            method: "greet",
+                            params: "Charles"
+                        },
+                        {
+                            jsonrpc: "2.0",
+                            method: "sum",
+                            params: [1, 2, 4]
+                        },
+                        {
+                            jsonrpc: "2.0",
+                            method: "subtract",
+                            params: [50, 29]
+                        }]), done)
+
+                    ws.once("error", function(error)
+                    {
+                        done(error)
+                    })
+                })
+            })
         })
-    //
-    //     describe("# notification", function()
-    //     {
-    //         it("should receive a notification", function(done)
-    //         {
-    //             connect(port, host).then(function(ws)
-    //             {
-    //                 ws.send(msgpack.encode({
-    //                     jsonrpc: "2.0",
-    //                     method: "update"
-    //                 }), function()
-    //                 {
-    //                     ws.close()
-    //                     done()
-    //                 })
-    //
-    //                 ws.once("error", function(error)
-    //                 {
-    //                     done(error)
-    //                 })
-    //             }).catch(function(error)
-    //             {
-    //                 console.log("UNHANDLED", error)
-    //             })
-    //         })
-    //     })
-    //
-    //     describe("# event", function()
-    //     {
-    //         it("should respond with -32000 if event name not provided", function(done)
-    //         {
-    //             connect(port, host).then(function(ws)
-    //             {
-    //                 ws.send(msgpack.encode({
-    //                     id: ++rpc_id,
-    //                     jsonrpc: "2.0",
-    //                     method: "rpc.on"
-    //                 }))
-    //
-    //                 ws.on("message", function(message)
-    //                 {
-    //                     message = msgpack.decode(message)
-    //                     message.error.code.should.equal(-32000)
-    //                     message.error.message.should.equal("Event not provided")
-    //
-    //                     rpc_id++
-    //                     ws.close()
-    //                     done()
-    //                 })
-    //
-    //                 ws.once("error", function(error)
-    //                 {
-    //                     done(error)
-    //                 })
-    //             })
-    //         })
-    //
-    //         it("should subscribe a user to an event", function(done)
-    //         {
-    //             connect(port, host).then(function(ws)
-    //             {
-    //                 ws.send(msgpack.encode({
-    //                     id: ++rpc_id,
-    //                     jsonrpc: "2.0",
-    //                     method: "rpc.on",
-    //                     params: ["newMail"]
-    //                 }))
-    //
-    //                 ws.on("message", function(message)
-    //                 {
-    //                     message = msgpack.decode(message)
-    //
-    //                     message.id.should.equal(rpc_id)
-    //                     message.result.newMail.should.equal("ok")
-    //
-    //                     rpc_id++
-    //                     ws.close()
-    //                     done()
-    //                 })
-    //
-    //                 ws.once("error", function(error)
-    //                 {
-    //                     done(error)
-    //                 })
-    //             })
-    //         })
-    //
-    //         it("should emit an event with no values to subscribed clients", function(done)
-    //         {
-    //             connect(port, host).then(function(ws)
-    //             {
-    //                 ws.send(msgpack.encode({
-    //                     id: ++rpc_id,
-    //                     jsonrpc: "2.0",
-    //                     method: "rpc.on",
-    //                     params: ["newMail"]
-    //                 }))
-    //
-    //                 ws.on("message", function(message)
-    //                 {
-    //                     try { message = msgpack.decode(message) }
-    //
-    //                     catch (error) { done(error) }
-    //
-    //                     if (message.notification)
-    //                     {
-    //                         message.notification.should.equal("newMail")
-    //
-    //                         ws.close()
-    //                         return done()
-    //                     }
-    //
-    //                     if (message.result.newMail === "ok")
-    //                         return server.emit("newMail")
-    //                 })
-    //
-    //                 ws.once("error", function(error)
-    //                 {
-    //                     done(error)
-    //                 })
-    //             })
-    //         })
-    //
-    //         it("should emit an event with single value to subscribed clients", function(done)
-    //         {
-    //             connect(port, host).then(function(ws)
-    //             {
-    //                 ws.send(msgpack.encode({
-    //                     id: ++rpc_id,
-    //                     jsonrpc: "2.0",
-    //                     method: "rpc.on",
-    //                     params: ["updatedNews"]
-    //                 }))
-    //
-    //                 ws.on("message", function(message)
-    //                 {
-    //                     try { message = msgpack.decode(message) }
-    //
-    //                     catch (error) { done(error) }
-    //
-    //                     if (message.notification)
-    //                     {
-    //                         message.notification.should.equal("updatedNews")
-    //                         message.params[0].should.equal("fox")
-    //
-    //                         ws.close()
-    //                         return done()
-    //                     }
-    //
-    //                     if (message.result.updatedNews === "ok")
-    //                         return server.emit("updatedNews", "fox")
-    //                 })
-    //
-    //                 ws.once("error", function(error)
-    //                 {
-    //                     done(error)
-    //                 })
-    //             })
-    //         })
-    //
-    //         it("should emit an event with multiple values to subscribed clients", function(done)
-    //         {
-    //             connect(port, host).then(function(ws)
-    //             {
-    //                 ws.send(msgpack.encode({
-    //                     id: ++rpc_id,
-    //                     jsonrpc: "2.0",
-    //                     method: "rpc.on",
-    //                     params: ["updatedNews"]
-    //                 }))
-    //
-    //                 ws.on("message", function(message)
-    //                 {
-    //                     try { message = msgpack.decode(message) }
-    //
-    //                     catch (error) { done(error) }
-    //
-    //                     if (message.notification)
-    //                     {
-    //                         message.notification.should.equal("updatedNews")
-    //                         expect(message.params).to.deep.equal(["fox", "mtv", "eurosport"])
-    //
-    //                         ws.close()
-    //                         return done()
-    //                     }
-    //
-    //                     if (message.result.updatedNews === "ok")
-    //                         return server.emit("updatedNews", "fox", "mtv", "eurosport")
-    //                 })
-    //
-    //                 ws.once("error", function(error)
-    //                 {
-    //                     done(error)
-    //                 })
-    //             })
-    //         })
-    //
-    //         it("should emit an event with circular objects to subscribed clients", function(done)
-    //         {
-    //             connect(port, host).then(function(ws)
-    //             {
-    //                 ws.send(msgpack.encode({
-    //                     id: ++rpc_id,
-    //                     jsonrpc: "2.0",
-    //                     method: "rpc.on",
-    //                     params: ["circularUpdate"]
-    //                 }))
-    //
-    //                 ws.on("message", function(message)
-    //                 {
-    //                     try { message = msgpack.decode(message) }
-    //
-    //                     catch (error) { done(error) }
-    //
-    //                     if (message.notification)
-    //                     {
-    //                         message.notification.should.equal("circularUpdate")
-    //                         expect(message.params).to.deep.equal({
-    //                             one: "one",
-    //                             two: "two",
-    //                             ref: "~params"
-    //                         })
-    //
-    //                         ws.close()
-    //                         return done()
-    //                     }
-    //
-    //                     if (message.result.circularUpdate === "ok")
-    //                     {
-    //                         const Obj = function()
-    //                         {
-    //                             this.one = "one"
-    //                             this.two = "two"
-    //                             this.ref = this
-    //                         }
-    //
-    //                         return server.emit("circularUpdate", new Obj())
-    //                     }
-    //                 })
-    //
-    //                 ws.once("error", function(error)
-    //                 {
-    //                     done(error)
-    //                 })
-    //             })
-    //         })
-    //
-    //         it("should unsubscribe a user from an event", function(done)
-    //         {
-    //             connect(port, host).then(function(ws)
-    //             {
-    //                 ws.send(msgpack.encode({
-    //                     id: ++rpc_id,
-    //                     jsonrpc: "2.0",
-    //                     method: "rpc.on",
-    //                     params: ["newMail"]
-    //                 }))
-    //
-    //                 let subscribed = false
-    //
-    //                 ws.on("message", function(message)
-    //                 {
-    //                     message = msgpack.decode(message)
-    //
-    //                     if (message.result.newMail === "ok" && subscribed === false)
-    //                     {
-    //                         subscribed = true
-    //
-    //                         return ws.send(msgpack.encode({
-    //                             id: ++rpc_id,
-    //                             jsonrpc: "2.0",
-    //                             method: "rpc.off",
-    //                             params: ["newMail"]
-    //                         }))
-    //                     }
-    //
-    //                     message.id.should.equal(rpc_id)
-    //                     message.result.newMail.should.equal("ok")
-    //
-    //                     rpc_id++
-    //                     ws.close()
-    //                     done()
-    //                 })
-    //
-    //                 ws.once("error", function(error)
-    //                 {
-    //                     done(error)
-    //                 })
-    //             })
-    //         })
-    //     })
-    //
-    //     describe("# login", function()
-    //     {
-    //         it("should respond with -32604 if params not provided", function(done)
-    //         {
-    //             connect(port, host).then(function(ws)
-    //             {
-    //                 ws.send(msgpack.encode({
-    //                     id: ++rpc_id,
-    //                     jsonrpc: "2.0",
-    //                     method: "rpc.login"
-    //                 }))
-    //
-    //                 ws.on("message", function(message)
-    //                 {
-    //                     message = msgpack.decode(message)
-    //
-    //                     message.id.should.equal(rpc_id)
-    //                     message.error.code.should.equal(-32604)
-    //                     message.error.message.should.equal("Params not found")
-    //
-    //                     rpc_id++
-    //                     ws.close()
-    //                     done()
-    //                 })
-    //
-    //                 ws.once("error", function(error)
-    //                 {
-    //                     done(error)
-    //                 })
-    //             })
-    //         })
-    //
-    //         it("should respond with false if login failed", function(done)
-    //         {
-    //             connect(port, host).then(function(ws)
-    //             {
-    //                 ws.send(msgpack.encode({
-    //                     id: ++rpc_id,
-    //                     jsonrpc: "2.0",
-    //                     method: "rpc.login",
-    //                     params: {
-    //                         username: "foo",
-    //                         password: "bar2"
-    //                     }
-    //                 }))
-    //
-    //                 ws.on("message", function(message)
-    //                 {
-    //                     message = msgpack.decode(message)
-    //
-    //                     message.id.should.equal(rpc_id)
-    //                     message.result.should.equal(false)
-    //
-    //                     rpc_id++
-    //                     ws.close()
-    //                     done()
-    //                 })
-    //
-    //                 ws.once("error", function(error)
-    //                 {
-    //                     done(error)
-    //                 })
-    //             })
-    //         })
-    //
-    //         it("should respond with -32605 when called without being authorized", function(done)
-    //         {
-    //             connect(port, host).then((ws) =>
-    //             {
-    //                 ws.send(msgpack.encode({
-    //                     id: rpc_id,
-    //                     jsonrpc: "2.0",
-    //                     method: "sqrt_protected",
-    //                     params: [4]
-    //                 }))
-    //
-    //                 ws.once("message", function(message)
-    //                 {
-    //                     message = msgpack.decode(message)
-    //
-    //                     message.id.should.equal(rpc_id)
-    //                     message.error.code.should.equal(-32605)
-    //                     message.error.message.should.equal("Method forbidden")
-    //
-    //                     rpc_id++
-    //                     ws.close()
-    //                     done()
-    //                 })
-    //
-    //                 ws.once("error", function(error)
-    //                 {
-    //                     done(error)
-    //                 })
-    //             })
-    //         })
-    //
-    //         it("should respond with true if login successful", function(done)
-    //         {
-    //             connect(port, host).then((ws) =>
-    //             {
-    //                 ws.send(msgpack.encode({
-    //                     id: ++rpc_id,
-    //                     jsonrpc: "2.0",
-    //                     method: "rpc.login",
-    //                     params: {
-    //                         username: "foo",
-    //                         password: "bar"
-    //                     }
-    //                 }))
-    //
-    //                 ws.on("message", function(message)
-    //                 {
-    //                     message = msgpack.decode(message)
-    //
-    //                     message.id.should.equal(rpc_id)
-    //                     message.result.should.equal(true)
-    //
-    //                     rpc_id++
-    //                     ws.close()
-    //                     done()
-    //                 })
-    //
-    //                 ws.once("error", function(error)
-    //                 {
-    //                     done(error)
-    //                 })
-    //             })
-    //         })
-    //
-    //         it("should return a valid response if authorized", function(done)
-    //         {
-    //             connect(port, host).then((ws) =>
-    //             {
-    //                 ws.send(msgpack.encode({
-    //                     id: ++rpc_id,
-    //                     jsonrpc: "2.0",
-    //                     method: "rpc.login",
-    //                     params: {
-    //                         username: "foo",
-    //                         password: "bar"
-    //                     }
-    //                 }))
-    //
-    //                 ws.once("message", function(message)
-    //                 {
-    //                     ws.send(msgpack.encode({
-    //                         id: ++rpc_id,
-    //                         jsonrpc: "2.0",
-    //                         method: "sqrt_protected",
-    //                         params: [4]
-    //                     }))
-    //
-    //                     ws.once("message", function(message)
-    //                     {
-    //                         message = msgpack.decode(message)
-    //
-    //                         rpc_id++
-    //                         ws.close()
-    //                         done()
-    //                     })
-    //                 })
-    //
-    //                 ws.once("error", function(error)
-    //                 {
-    //                     done(error)
-    //                 })
-    //             })
-    //         })
-    //     })
+
+        describe("# notification", function()
+        {
+            it("should receive a notification", function(done)
+            {
+                connect(port, host).then(function(ws)
+                {
+                    ws.send(msgpack.encode({
+                        jsonrpc: "2.0",
+                        method: "update"
+                    }), function()
+                    {
+                        ws.close()
+                        done()
+                    })
+
+                    ws.once("error", function(error)
+                    {
+                        done(error)
+                    })
+                }).catch(function(error)
+                {
+                    console.log("UNHANDLED", error)
+                })
+            })
+        })
+
+        describe("# event", function()
+        {
+            it("should respond with -32000 if event name not provided", function(done)
+            {
+                connect(port, host).then(function(ws)
+                {
+                    ws.send(msgpack.encode({
+                        id: ++rpc_id,
+                        method: "rpc.on"
+                    }))
+
+                    ws.on("message", function(message)
+                    {
+                        message = msgpack.decode(message)
+                        message.error.code.should.equal(-32000)
+                        message.error.message.should.equal("Event not provided")
+
+                        rpc_id++
+                        ws.close()
+                        done()
+                    })
+
+                    ws.once("error", function(error)
+                    {
+                        done(error)
+                    })
+                })
+            })
+
+            it("should subscribe a user to an event", function(done)
+            {
+                connect(port, host).then(function(ws)
+                {
+                    ws.send(msgpack.encode({
+                        id: ++rpc_id,
+                        method: "rpc.on",
+                        params: ["newMail"]
+                    }))
+
+                    ws.on("message", function(message)
+                    {
+                        message = msgpack.decode(message)
+
+                        message.id.should.equal(rpc_id)
+                        message.result.newMail.should.equal("ok")
+
+                        rpc_id++
+                        ws.close()
+                        done()
+                    })
+
+                    ws.once("error", function(error)
+                    {
+                        done(error)
+                    })
+                })
+            })
+
+            it("should emit an event with no values to subscribed clients", function(done)
+            {
+                connect(port, host).then(function(ws)
+                {
+                    ws.send(msgpack.encode({
+                        id: ++rpc_id,
+                        method: "rpc.on",
+                        params: ["newMail"]
+                    }))
+
+                    ws.on("message", function(message)
+                    {
+                        try { message = msgpack.decode(message) }
+
+                        catch (error) { done(error) }
+
+                        if (message.notification)
+                        {
+                            message.notification.should.equal("newMail")
+
+                            ws.close()
+                            return done()
+                        }
+
+                        if (message.result.newMail === "ok")
+                            return server.emit("newMail")
+                    })
+
+                    ws.once("error", function(error)
+                    {
+                        done(error)
+                    })
+                })
+            })
+
+            it("should emit an event with single value to subscribed clients", function(done)
+            {
+                connect(port, host).then(function(ws)
+                {
+                    ws.send(msgpack.encode({
+                        id: ++rpc_id,
+                        method: "rpc.on",
+                        params: ["updatedNews"]
+                    }))
+
+                    ws.on("message", function(message)
+                    {
+                        try { message = msgpack.decode(message) }
+
+                        catch (error) { done(error) }
+
+                        if (message.notification)
+                        {
+                            message.notification.should.equal("updatedNews")
+                            message.params[0].should.equal("fox")
+
+                            ws.close()
+                            return done()
+                        }
+
+                        if (message.result.updatedNews === "ok")
+                            return server.emit("updatedNews", "fox")
+                    })
+
+                    ws.once("error", function(error)
+                    {
+                        done(error)
+                    })
+                })
+            })
+
+            it("should emit an event with multiple values to subscribed clients", function(done)
+            {
+                connect(port, host).then(function(ws)
+                {
+                    ws.send(msgpack.encode({
+                        id: ++rpc_id,
+                        method: "rpc.on",
+                        params: ["updatedNews"]
+                    }))
+
+                    ws.on("message", function(message)
+                    {
+                        try { message = msgpack.decode(message) }
+
+                        catch (error) { done(error) }
+
+                        if (message.notification)
+                        {
+                            message.notification.should.equal("updatedNews")
+                            expect(message.params).to.deep.equal(["fox", "mtv", "eurosport"])
+
+                            ws.close()
+                            return done()
+                        }
+
+                        if (message.result.updatedNews === "ok")
+                            return server.emit("updatedNews", "fox", "mtv", "eurosport")
+                    })
+
+                    ws.once("error", function(error)
+                    {
+                        done(error)
+                    })
+                })
+            })
+
+            //         it("should emit an event with circular objects to subscribed clients", function(done)
+            //         {
+            //             connect(port, host).then(function(ws)
+            //             {
+            //                 ws.send(msgpack.encode({
+            //                     id: ++rpc_id,
+            //                     jsonrpc: "2.0",
+            //                     method: "rpc.on",
+            //                     params: ["circularUpdate"]
+            //                 }))
+            //
+            //                 ws.on("message", function(message)
+            //                 {
+            //                     try { message = msgpack.decode(message) }
+            //
+            //                     catch (error) { done(error) }
+            //
+            //                     if (message.notification)
+            //                     {
+            //                         message.notification.should.equal("circularUpdate")
+            //                         expect(message.params).to.deep.equal({
+            //                             one: "one",
+            //                             two: "two",
+            //                             ref: "~params"
+            //                         })
+            //
+            //                         ws.close()
+            //                         return done()
+            //                     }
+            //
+            //                     if (message.result.circularUpdate === "ok")
+            //                     {
+            //                         const Obj = function()
+            //                         {
+            //                             this.one = "one"
+            //                             this.two = "two"
+            //                             this.ref = this
+            //                         }
+            //
+            //                         return server.emit("circularUpdate", new Obj())
+            //                     }
+            //                 })
+            //
+            //                 ws.once("error", function(error)
+            //                 {
+            //                     done(error)
+            //                 })
+            //             })
+            //         })
+            //
+            it("should unsubscribe a user from an event", function(done)
+            {
+                connect(port, host).then(function(ws)
+                {
+                    ws.send(msgpack.encode({
+                        id: ++rpc_id,
+                        method: "rpc.on",
+                        params: ["newMail"]
+                    }))
+
+                    let subscribed = false
+
+                    ws.on("message", function(message)
+                    {
+                        message = msgpack.decode(message)
+
+                        if (message.result.newMail === "ok" && subscribed === false)
+                        {
+                            subscribed = true
+
+                            return ws.send(msgpack.encode({
+                                id: ++rpc_id,
+                                jsonrpc: "2.0",
+                                method: "rpc.off",
+                                params: ["newMail"]
+                            }))
+                        }
+
+                        message.id.should.equal(rpc_id)
+                        message.result.newMail.should.equal("ok")
+
+                        rpc_id++
+                        ws.close()
+                        done()
+                    })
+
+                    ws.once("error", function(error)
+                    {
+                        done(error)
+                    })
+                })
+            })
+        })
+
+        describe("# login", function()
+        {
+            it("should respond with -32604 if params not provided", function(done)
+            {
+                connect(port, host).then(function(ws)
+                {
+                    ws.send(msgpack.encode({
+                        id: ++rpc_id,
+                        jsonrpc: "2.0",
+                        method: "rpc.login"
+                    }))
+
+                    ws.on("message", function(message)
+                    {
+                        message = msgpack.decode(message)
+
+                        message.id.should.equal(rpc_id)
+                        message.error.code.should.equal(-32604)
+                        message.error.message.should.equal("Params not found")
+
+                        rpc_id++
+                        ws.close()
+                        done()
+                    })
+
+                    ws.once("error", function(error)
+                    {
+                        done(error)
+                    })
+                })
+            })
+
+            it("should respond with false if login failed", function(done)
+            {
+                connect(port, host).then(function(ws)
+                {
+                    ws.send(msgpack.encode({
+                        id: ++rpc_id,
+                        method: "rpc.login",
+                        params: {
+                            username: "foo",
+                            password: "bar2"
+                        }
+                    }))
+
+                    ws.on("message", function(message)
+                    {
+                        message = msgpack.decode(message)
+
+                        message.id.should.equal(rpc_id)
+                        message.result.should.equal(false)
+
+                        rpc_id++
+                        ws.close()
+                        done()
+                    })
+
+                    ws.once("error", function(error)
+                    {
+                        done(error)
+                    })
+                })
+            })
+
+            it("should respond with -32605 when called without being authorized", function(done)
+            {
+                connect(port, host).then((ws) =>
+                {
+                    ws.send(msgpack.encode({
+                        id: rpc_id,
+                        method: "sqrt_protected",
+                        params: [4]
+                    }))
+
+                    ws.once("message", function(message)
+                    {
+                        message = msgpack.decode(message)
+
+                        message.id.should.equal(rpc_id)
+                        message.error.code.should.equal(-32605)
+                        message.error.message.should.equal("Method forbidden")
+
+                        rpc_id++
+                        ws.close()
+                        done()
+                    })
+
+                    ws.once("error", function(error)
+                    {
+                        done(error)
+                    })
+                })
+            })
+
+            it("should respond with true if login successful", function(done)
+            {
+                connect(port, host).then((ws) =>
+                {
+                    ws.send(msgpack.encode({
+                        id: ++rpc_id,
+                        method: "rpc.login",
+                        params: {
+                            username: "foo",
+                            password: "bar"
+                        }
+                    }))
+
+                    ws.on("message", function(message)
+                    {
+                        message = msgpack.decode(message)
+
+                        message.id.should.equal(rpc_id)
+                        message.result.should.equal(true)
+
+                        rpc_id++
+                        ws.close()
+                        done()
+                    })
+
+                    ws.once("error", function(error)
+                    {
+                        done(error)
+                    })
+                })
+            })
+
+            it("should return a valid response if authorized", function(done)
+            {
+                connect(port, host).then((ws) =>
+                {
+                    ws.send(msgpack.encode({
+                        id: ++rpc_id,
+                        method: "rpc.login",
+                        params: {
+                            username: "foo",
+                            password: "bar"
+                        }
+                    }))
+
+                    ws.once("message", function(message)
+                    {
+                        ws.send(msgpack.encode({
+                            id: ++rpc_id,
+                            method: "sqrt_protected",
+                            params: [4]
+                        }))
+
+                        ws.once("message", function(message)
+                        {
+                            message = msgpack.decode(message)
+
+                            rpc_id++
+                            ws.close()
+                            done()
+                        })
+                    })
+
+                    ws.once("error", function(error)
+                    {
+                        done(error)
+                    })
+                })
+            })
+        })
     })
 })
 
