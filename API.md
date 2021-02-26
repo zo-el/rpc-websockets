@@ -57,7 +57,7 @@ Departing from version 2.x, there's been some minor API changes. A breaking chan
 ## Client
 
 ```js
-var WebSocket = require('rpc-websockets').Client
+var WebSocket = require('msgpack-rpc-websockets').Client
 var ws = new WebSocket('ws://localhost:8080')
 ```
 
@@ -164,7 +164,7 @@ ws.on('feedUpdated', handlerFunction)
 ## Server
 
 ```js
-var WebSocketServer = require('rpc-websockets').Server
+var WebSocketServer = require('msgpack-rpc-websockets').Server
 
 var server = new WebSocketServer({
   port: 8080,
