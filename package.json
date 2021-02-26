@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/elpheria/rpc-websockets.git"
+    "url": "git+https://github.com/zo-el/rpc-websockets.git"
   },
   "dependencies": {
     "@babel/runtime": "^7.11.2",
@@ -58,14 +58,14 @@
     "client",
     "server"
   ],
-  "author": "Elpheria",
+  "author": "zo-el",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/elpheria/rpc-websockets/issues"
+    "url": "https://github.com/zo-el/rpc-websockets/issues"
   },
-  "homepage": "https://github.com/elpheria/rpc-websockets#readme",
+  "homepage": "https://github.com/zo-el/rpc-websockets#readme",
   "funding": {
     "type": "paypal",
-    "url": "https://paypal.me/kozjak"
+    "url": "https://paypal.me/joelulahanna"
   }
 }
