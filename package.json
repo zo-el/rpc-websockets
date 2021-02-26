@@ -1,7 +1,7 @@
 {
   "name": "rpc-websockets",
   "version": "7.4.8",
-  "description": "JSON-RPC 2.0 implementation over WebSockets for Node.js",
+  "description": "MSGPACK implementation over WebSockets for Node.js",
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc && mkdir -p ./dist && eslint --fix -c ./.eslintrc './src/**/*.ts' && babel ./build-ts -d ./dist --copy-files && browserify -s RPCWebSocket ./dist/index.browser.js > ./dist/index.browser-bundle.js",

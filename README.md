@@ -26,7 +26,7 @@ The **rpc-websockets** library enables developers to easily implement their busi
 
 **rpc-websockets** is built on Node.js and supports both LTS and Current versions.
 
-Use the free OSS edition in order to implement and manage your own WebSocket server instances, or subscribe for our [Pro plan](#pro-features) and have us manage your instances and provide you with management of your methods, events and notifications on an easy-to-use Web Management portal.
+Use the free OSS edition in order to implement and manage your own WebSocket server instances.
 
 ## Quick start
 
@@ -121,20 +121,7 @@ All library's open-source features are documented in our [API documentation](API
 **rpc-websockets** is being actively used in production by multiple companies in a variety of different use cases.
 
 <br>
-<a href="https://scratchbox.io" target="_blank"><img src="https://raw.githubusercontent.com/zo-el/rpc-websockets/master/assets/user-scratchbox.png" alt="Scratchbox" height=50px></a>&emsp;
-<a href="https://loomx.io" target="_blank"><img src="https://raw.githubusercontent.com/zo-el/rpc-websockets/master/assets/user-loom.png" alt="Loom Network" height=50px></a>&emsp;
-<a href="https://www.uniqcast.com" target="_blank"><img src="https://raw.githubusercontent.com/zo-el/rpc-websockets/master/assets/user-uniqcast.png" alt="uniqCast" height=50px></a>&emsp;
-<a href="https://leapdao.org" target="_blank"><img src="https://raw.githubusercontent.com/zo-el/rpc-websockets/master/assets/user-leapdao.png" alt="LeapDAO" height=50px></a>&emsp;
-<a href="https://klika-tech.com" target="_blank"><img src="https://raw.githubusercontent.com/zo-el/rpc-websockets/master/assets/user-klikatech.png" alt="Klika Tech, Inc." height=50px></a>&emsp;
-<a href="https://kodebox.io" target="_blank"><img src="https://raw.githubusercontent.com/zo-el/rpc-websockets/master/assets/user-kodebox.png" alt="Kodebox, Inc." height=50px></a>&emsp;
-<a href="https://hey.network" target="_blank"><img src="https://raw.githubusercontent.com/zo-el/rpc-websockets/master/assets/user-heynetwork.png" alt="Hey-Group S.A./N.V." height=50px></a>&emsp;
-<a href="https://www.hylo.com" target="_blank"><img src="https://raw.githubusercontent.com/zo-el/rpc-websockets/master/assets/user-hylo.png" alt="Hylo, Inc." height=50px></a>&emsp;
-<a href="https://witnet.foundation" target="_blank"><img src="https://raw.githubusercontent.com/zo-el/rpc-websockets/master/assets/user-witnet.png" alt="Witnet Foundation" height=50px></a>&emsp;
-<a href="https://www.scaleleap.com" target="_blank"><img src="https://raw.githubusercontent.com/zo-el/rpc-websockets/master/assets/user-scaleleap.png" alt="Scale Leap" height=50px></a>&emsp;
-<a href="https://codice.org" target="_blank"><img src="https://raw.githubusercontent.com/zo-el/rpc-websockets/master/assets/user-codice.png" alt="Codice Foundation, Inc." height=50px></a>&emsp;
 <a href="https://holo.host" target="_blank"><img src="https://raw.githubusercontent.com/zo-el/rpc-websockets/master/assets/user-holo.png" alt="Holo Ltd." height=50px></a>&emsp;
-<a href="https://solana.com" target="_blank"><img src="https://raw.githubusercontent.com/zo-el/rpc-websockets/master/assets/user-solana.png" alt="Solana Labs, Inc." height=50px></a>&emsp;
-<a href="https://filecoin.io" target="_blank"><img src="https://raw.githubusercontent.com/zo-el/rpc-websockets/master/assets/user-filecoin.png" alt="Filecoin" height=50px></a>&emsp;
 
 ## License
 

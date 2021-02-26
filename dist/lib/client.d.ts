@@ -78,7 +78,7 @@ export default class CommonClient extends EventEmitter {
      */
     listMethods(): Promise<unknown>;
     /**
-     * Sends a JSON-RPC 2.0 notification to server.
+     * Sends a MSGPACK notification to server.
      * @method
      * @param {String} method - RPC method name
      * @param {Object} params - optional method parameters

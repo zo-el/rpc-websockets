@@ -11,7 +11,7 @@ const errors = new Map([
     [-32700, "Parse error"]
 ]);
 /**
- * Creates a JSON-RPC 2.0-compliant error.
+ * Creates a MSGPACK-compliant error.
  * @param {Number} code - error code
  * @param {String} details - error details
  * @return {Object}

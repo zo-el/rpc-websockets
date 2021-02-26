@@ -290,7 +290,7 @@ export default class Server extends EventEmitter {
         return Object.keys(this.namespaces[ns].events);
     }
     /**
-     * Creates a JSON-RPC 2.0 compliant error
+     * Creates a MSGPACK compliant error
      * @method
      * @param {Number} code - indicates the error type that occurred
      * @param {String} message - provides a short description of the error

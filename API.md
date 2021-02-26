@@ -81,7 +81,7 @@ Connects to a previously defined server if not connected already. Should only be
 
 ### ws.call(method[, params[, timeout[, ws_options]]]) -> Promise
 
-Calls a registered RPC method on server. Resolves once the response is ready. Throws if an RPC error was received. Throws if `method` resolves to `undefined` (JSON knows no `undefined` type, so the response will neither have `result` nor `error` properties which violates JSON-RPC 2.0).
+Calls a registered RPC method on server. Resolves once the response is ready. Throws if an RPC error was received. Throws if `method` resolves to `undefined` (JSON knows no `undefined` type, so the response will neither have `result` nor `error` properties which violates MSGPACK).
 
 Parameters:
 * `method` {String}: An RPC method name to run on server-side.
@@ -106,7 +106,7 @@ Fetches a list of client's methods registered on server.
 
 ### ws.notify(method[, params])
 
-Sends a JSON-RPC 2.0 notification to server.
+Sends a MSGPACK notification to server.
 
 Parameters:
 * `method` {String}: An RPC method name to run on server-side.

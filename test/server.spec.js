@@ -614,7 +614,7 @@ describe("Server", function()
                 })
             })
 
-            it("should respond with -32600 when called with invalid method name in JSON-RPC 2.0 Request object", function(done)
+            it("should respond with -32600 when called with invalid method name in MSGPACK Request object", function(done)
             {
                 connect(port, host).then(function(ws)
                 {
@@ -644,7 +644,7 @@ describe("Server", function()
                 })
             })
 
-            it("should respond with -32600 when called with invalid params type in JSON-RPC 2.0 Request object", function(done)
+            it("should respond with -32600 when called with invalid params type in MSGPACK Request object", function(done)
             {
                 connect(port, host).then(function(ws)
                 {
