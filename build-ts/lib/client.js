@@ -1,6 +1,6 @@
 /**
  * "Client" wraps "ws" or a browser-implemented "WebSocket" library
- * according to the environment providing JSON RPC 2.0 support on top.
+ * according to the environment providing MessagePack support on top.
  * @module Client
  */
 "use strict";
@@ -211,7 +211,7 @@ export default class CommonClient extends EventEmitter {
                 return Promise.resolve().then(() => { this.emit.apply(this, args); });
             }
             if (!this.queue[message.id]) {
-                // general JSON RPC 2.0 events
+                // general MessagePack events
                 if (message.method && message.params) {
                     // run as microtask so that pending queue messages are resolved first
                     return Promise.resolve().then(() => {

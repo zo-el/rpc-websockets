@@ -4,7 +4,7 @@
   </a>
   <br>
   <p>
-    WebSockets for <a href="http://nodejs.org">Node.js</a> and <a href="https://en.wikipedia.org/wiki/JavaScript">JavaScript</a>/<a href="https://en.wikipedia.org/wiki/TypeScript">TypeScript</a> with <a href="https://www.jsonrpc.org/specification">JSON RPC 2.0</a> support on top.  </p>
+    WebSockets for <a href="http://nodejs.org">Node.js</a> and <a href="https://en.wikipedia.org/wiki/JavaScript">JavaScript</a>/<a href="https://en.wikipedia.org/wiki/TypeScript">TypeScript</a> with <a href="https://msgpack.org/">MessagePack</a> support on top.  </p>
   <a href="https://www.npmjs.com/package/msgpack-rpc-websockets">
                 <img src="https://img.shields.io/npm/v/msgpack-rpc-websockets.svg">
   </a>

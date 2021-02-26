@@ -1,5 +1,5 @@
 /**
- * "Server" wraps the "ws" library providing JSON RPC 2.0 support on top.
+ * "Server" wraps the "ws" library providing MessagePack support on top.
  * @module Server
  */
 import { EventEmitter } from "eventemitter3";
@@ -184,7 +184,7 @@ export default class Server extends EventEmitter {
      */
     close(): Promise<unknown>;
     /**
-     * Handles all WebSocket JSON RPC 2.0 requests.
+     * Handles all WebSocket MessagePack requests.
      * @private
      * @param {Object} socket - ws socket instance
      * @param {String} ns - namespaces identifier
