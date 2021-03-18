@@ -1,6 +1,6 @@
 /**
  * "Client" wraps "ws" or a browser-implemented "WebSocket" library
- * according to the environment providing JSON RPC 2.0 support on top.
+ * according to the environment providing MessagePack support on top.
  * @module Client
  */
 import { EventEmitter } from "eventemitter3";
@@ -78,7 +78,7 @@ export default class CommonClient extends EventEmitter {
      */
     listMethods(): Promise<unknown>;
     /**
-     * Sends a JSON-RPC 2.0 notification to server.
+     * Sends a MSGPACK notification to server.
      * @method
      * @param {String} method - RPC method name
      * @param {Object} params - optional method parameters

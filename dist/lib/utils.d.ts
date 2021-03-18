@@ -4,10 +4,16 @@ interface IRPCError {
     data?: string;
 }
 /**
- * Creates a JSON-RPC 2.0-compliant error.
+ * Creates a MSGPACK-compliant error.
  * @param {Number} code - error code
  * @param {String} details - error details
  * @return {Object}
  */
 declare function createError(code: number, details?: string): IRPCError;
-export { createError };
+/**
+ * Creates a ArrayBuffer from a uInt8Array.
+ * @param {Uint8Array} array - data
+ * @return {ArrayBuffer}
+ */
+declare function typedArrayToBuffer(array: Uint8Array): ArrayBuffer;
+export { createError, typedArrayToBuffer };

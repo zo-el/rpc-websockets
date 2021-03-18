@@ -1,5 +1,5 @@
 /**
- * "Server" wraps the "ws" library providing JSON RPC 2.0 support on top.
+ * "Server" wraps the "ws" library providing MessagePack support on top.
  * @module Server
  */
 
@@ -10,8 +10,8 @@ import { EventEmitter } from "eventemitter3"
 import NodeWebSocket, { Server as WebSocketServer } from "ws"
 import { v1 as uuidv1 } from "uuid"
 import url from "url"
-import CircularJSON from "circular-json"
-
+// import CircularJSON from "circular-json"
+import msgpack from "tiny-msgpack"
 import * as utils from "./utils"
 
 interface INamespaceEvent {
@@ -252,6 +252,7 @@ export default class Server extends EventEmitter
      * @throws {TypeError}
      * @return {Object} - returns an IEvent object
      */
+    // Skip for now
     event(name: string, ns = "/"): IEvent
     {
         if (!this.namespaces[ns]) this._generateNamespace(ns)
@@ -281,11 +282,10 @@ export default class Server extends EventEmitter
 
                 if (!socket)
                     continue
-
-                socket.send(CircularJSON.stringify({
+                socket.send(utils.typedArrayToBuffer(msgpack.encode({
                     notification: name,
                     params: params || null
-                }))
+                })))
             }
         })
 
@@ -356,10 +356,12 @@ export default class Server extends EventEmitter
 
                 for (let i = 0, id; id = socket_ids[i]; ++i)
                 {
-                    self.namespaces[name].clients.get(id).send(CircularJSON.stringify({
-                        notification: event,
-                        params: params || []
-                    }))
+                    // TODO: Check later
+                    self.namespaces[name].clients.get(id).send(
+                        utils.typedArrayToBuffer(msgpack.encode({
+                            notification: event,
+                            params: params || []
+                        })))
                 }
             },
 
@@ -419,7 +421,7 @@ export default class Server extends EventEmitter
     }
 
     /**
-     * Creates a JSON-RPC 2.0 compliant error
+     * Creates a MSGPACK compliant error
      * @method
      * @param {Number} code - indicates the error type that occurred
      * @param {String} message - provides a short description of the error
@@ -456,7 +458,7 @@ export default class Server extends EventEmitter
     }
 
     /**
-     * Handles all WebSocket JSON RPC 2.0 requests.
+     * Handles all WebSocket MessagePack requests.
      * @private
      * @param {Object} socket - ws socket instance
      * @param {String} ns - namespaces identifier
@@ -467,63 +469,64 @@ export default class Server extends EventEmitter
         socket.on("message", async(data) =>
         {
             const msg_options: Parameters<NodeWebSocket["send"]>[1] = {}
-
-            if (data instanceof ArrayBuffer)
-            {
-                msg_options.binary = true
-
-                data = Buffer.from(data).toString()
-            }
+            // TODO: Why?
+            // if (data instanceof ArrayBuffer)
+            // {
+            //     msg_options.binary = true
+            //
+            //     data = Buffer.from(data).toString()
+            // }
 
             if (socket.readyState !== 1)
                 return // TODO: should have debug logs here
 
-            let parsedData: any
+            let decodedData: any
 
-            try { parsedData = JSON.parse(data as string) }
+            try { decodedData = msgpack.decode(data) }
 
             catch (error)
             {
-                return socket.send(JSON.stringify({
-                    jsonrpc: "2.0",
+                return socket.send(utils.typedArrayToBuffer(msgpack.encode({
                     error: utils.createError(-32700, error.toString()),
                     id: null
-                }), msg_options)
+                })), msg_options)
             }
 
-            if (Array.isArray(parsedData))
-            {
-                if (!parsedData.length)
-                    return socket.send(JSON.stringify({
-                        jsonrpc: "2.0",
-                        error: utils.createError(-32600, "Invalid array"),
-                        id: null
-                    }), msg_options)
+            // if (Array.isArray(decodedData))
+            // {
+            //     if (!decodedData.length)
+            //         return socket.send(utils.typedArrayToBuffer(msgpack.encode({
+            //             // jsonrpc: "2.0",
+            //             error: utils.createError(-32600, "Invalid array"),
+            //             id: null
+            //         })), msg_options)
+            //
+            //     const responses = []
+            //
+            //     for (const message of decodedData)
+            //     {
+            //         const response = await this._runMethod(message, socket._id, ns)
+            //
+            //         if (!response)
+            //             continue
+            //
+            //         responses.push(response)
+            //     }
+            //
+            //     if (!responses.length)
+            //         return
+            //
+            //     return socket.send(utils.typedArrayToBuffer(
+            //   msgpack.encode(responses)), msg_options
+            // )
+            // }
 
-                const responses = []
-
-                for (const message of parsedData)
-                {
-                    const response = await this._runMethod(message, socket._id, ns)
-
-                    if (!response)
-                        continue
-
-                    responses.push(response)
-                }
-
-                if (!responses.length)
-                    return
-
-                return socket.send(CircularJSON.stringify(responses), msg_options)
-            }
-
-            const response = await this._runMethod(parsedData, socket._id, ns)
+            const response = await this._runMethod(decodedData, socket._id, ns)
 
             if (!response)
                 return
 
-            return socket.send(CircularJSON.stringify(response), msg_options)
+            return socket.send(utils.typedArrayToBuffer(msgpack.encode(response)), msg_options)
         })
     }
 
@@ -537,37 +540,39 @@ export default class Server extends EventEmitter
      */
     private async _runMethod(message: any, socket_id: string, ns = "/")
     {
-        if (typeof message !== "object" || message === null)
-            return {
-                jsonrpc: "2.0",
-                error: utils.createError(-32600),
-                id: null
-            }
+        // if (typeof message !== "object" || message === null)
+        //     return {
+        //         jsonrpc: "2.0",
+        //         error: utils.createError(-32600),
+        //         id: null
+        //     }
 
-        if (message.jsonrpc !== "2.0")
-            return {
-                jsonrpc: "2.0",
-                error: utils.createError(-32600, "Invalid JSON RPC version"),
-                id: message.id || null
-            }
+        // if (message.jsonrpc !== "2.0")
+        //     return {
+        //         jsonrpc: "2.0",
+        //         error: utils.createError(-32600, "Invalid JSON RPC version"),
+        //         id: message.id || null
+        //     }
 
         if (!message.method)
+        // return new error
             return {
-                jsonrpc: "2.0",
+                // jsonrpc: "2.0",
                 error: utils.createError(-32602, "Method not specified"),
                 id: message.id || null
             }
 
         if (typeof message.method !== "string")
             return {
-                jsonrpc: "2.0",
+                // jsonrpc: "2.0",
                 error: utils.createError(-32600, "Invalid method name"),
                 id: message.id || null
             }
 
         if (message.params && typeof message.params === "string")
+        // params should be a uInt8Array
             return {
-                jsonrpc: "2.0",
+                // jsonrpc: "2.0",
                 error: utils.createError(-32600),
                 id: message.id || null
             }
@@ -576,7 +581,7 @@ export default class Server extends EventEmitter
         {
             if (!message.params)
                 return {
-                    jsonrpc: "2.0",
+                    // jsonrpc: "2.0",
                     error: utils.createError(-32000),
                     id: message.id || null
                 }
@@ -601,7 +606,7 @@ export default class Server extends EventEmitter
                     namespace.clients.get(socket_id)["_authenticated"] === false)
                 {
                     return {
-                        jsonrpc: "2.0",
+                        // jsonrpc: "2.0",
                         error: utils.createError(-32606),
                         id: message.id || null
                     }
@@ -619,7 +624,7 @@ export default class Server extends EventEmitter
             }
 
             return {
-                jsonrpc: "2.0",
+                // jsonrpc: "2.0",
                 result: results,
                 id: message.id || null
             }
@@ -628,7 +633,7 @@ export default class Server extends EventEmitter
         {
             if (!message.params)
                 return {
-                    jsonrpc: "2.0",
+                    // jsonrpc: "2.0",
                     error: utils.createError(-32000),
                     id: message.id || null
                 }
@@ -656,7 +661,7 @@ export default class Server extends EventEmitter
             }
 
             return {
-                jsonrpc: "2.0",
+                // jsonrpc: "2.0",
                 result: results,
                 id: message.id || null
             }
@@ -665,7 +670,7 @@ export default class Server extends EventEmitter
         {
             if (!message.params)
                 return {
-                    jsonrpc: "2.0",
+                    // jsonrpc: "2.0",
                     error: utils.createError(-32604),
                     id: message.id || null
                 }
@@ -674,7 +679,7 @@ export default class Server extends EventEmitter
         if (!this.namespaces[ns].rpc_methods[message.method])
         {
             return {
-                jsonrpc: "2.0",
+                // jsonrpc: "2.0",
                 error: utils.createError(-32601),
                 id: message.id || null
             }
@@ -687,7 +692,7 @@ export default class Server extends EventEmitter
             this.namespaces[ns].clients.get(socket_id)["_authenticated"] === false)
         {
             return {
-                jsonrpc: "2.0",
+                // jsonrpc: "2.0",
                 error: utils.createError(-32605),
                 id: message.id || null
             }
@@ -706,7 +711,7 @@ export default class Server extends EventEmitter
 
             if (error instanceof Error)
                 return {
-                    jsonrpc: "2.0",
+                    // jsonrpc: "2.0",
                     error: {
                         code: -32000,
                         message: error.name,
@@ -716,7 +721,7 @@ export default class Server extends EventEmitter
                 }
 
             return {
-                jsonrpc: "2.0",
+                // jsonrpc: "2.0",
                 error: error,
                 id: message.id
             }
@@ -735,7 +740,7 @@ export default class Server extends EventEmitter
         }
 
         return {
-            jsonrpc: "2.0",
+            // jsonrpc: "2.0",
             result: response,
             id: message.id
         }

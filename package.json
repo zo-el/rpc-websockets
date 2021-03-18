@@ -1,7 +1,7 @@
 {
-  "name": "rpc-websockets",
-  "version": "7.4.8",
-  "description": "JSON-RPC 2.0 implementation over WebSockets for Node.js",
+  "name": "msgpack-rpc-websockets",
+  "version": "1.0.0",
+  "description": "MSGPACK implementation over WebSockets for Node.js",
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc && mkdir -p ./dist && eslint --fix -c ./.eslintrc './src/**/*.ts' && babel ./build-ts -d ./dist --copy-files && browserify -s RPCWebSocket ./dist/index.browser.js > ./dist/index.browser-bundle.js",
@@ -12,17 +12,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/elpheria/rpc-websockets.git"
+    "url": "git+https://github.com/zo-el/msgpack-rpc-websockets.git"
   },
   "dependencies": {
     "@babel/runtime": "^7.11.2",
     "assert-args": "^1.2.1",
+    "bufferutil": "^4.0.1",
     "circular-json": "^0.5.9",
     "eventemitter3": "^4.0.7",
+    "tiny-msgpack": "^1.0.2",
+    "utf-8-validate": "^5.0.2",
     "uuid": "^8.3.0",
-    "ws": "^7.3.1",
-    "bufferutil": "^4.0.1",
-    "utf-8-validate": "^5.0.2"
+    "ws": "^7.3.1"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.1",
@@ -57,14 +58,14 @@
     "client",
     "server"
   ],
-  "author": "Elpheria",
+  "author": "zo-el",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/elpheria/rpc-websockets/issues"
+    "url": "https://github.com/zo-el/msgpack-rpc-websockets/issues"
   },
-  "homepage": "https://github.com/elpheria/rpc-websockets#readme",
+  "homepage": "https://github.com/zo-el/msgpack-rpc-websockets#readme",
   "funding": {
     "type": "paypal",
-    "url": "https://paypal.me/kozjak"
+    "url": "https://paypal.me/joelulahanna"
   }
 }

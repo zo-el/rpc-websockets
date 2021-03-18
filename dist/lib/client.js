@@ -1,6 +1,6 @@
 /**
  * "Client" wraps "ws" or a browser-implemented "WebSocket" library
- * according to the environment providing JSON RPC 2.0 support on top.
+ * according to the environment providing MessagePack support on top.
  * @module Client
  */
 "use strict"; // @ts-ignore
@@ -30,7 +30,7 @@ var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/ge
 
 var _eventemitter = require("eventemitter3");
 
-var _circularJson = _interopRequireDefault(require("circular-json"));
+var _tinyMsgpack = _interopRequireDefault(require("tiny-msgpack"));
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 
@@ -136,13 +136,12 @@ var CommonClient = /*#__PURE__*/function (_EventEmitter) {
         var rpc_id = _this2.generate_request_id(method, params);
 
         var message = {
-          jsonrpc: "2.0",
           method: method,
           params: params || null,
           id: rpc_id
         };
 
-        _this2.socket.send(JSON.stringify(message), ws_opts, function (error) {
+        _this2.socket.send(_tinyMsgpack["default"].encode(message), ws_opts, function (error) {
           if (error) return reject(error);
           _this2.queue[rpc_id] = {
             promise: [resolve, reject]
@@ -235,7 +234,7 @@ var CommonClient = /*#__PURE__*/function (_EventEmitter) {
       return listMethods;
     }()
     /**
-     * Sends a JSON-RPC 2.0 notification to server.
+     * Sends a MSGPACK notification to server.
      * @method
      * @param {String} method - RPC method name
      * @param {Object} params - optional method parameters
@@ -250,12 +249,12 @@ var CommonClient = /*#__PURE__*/function (_EventEmitter) {
       return new Promise(function (resolve, reject) {
         if (!_this3.ready) return reject(new Error("socket not ready"));
         var message = {
-          jsonrpc: "2.0",
+          // jsonrpc: "2.0",
           method: method,
           params: params || null
         };
 
-        _this3.socket.send(JSON.stringify(message), function (error) {
+        _this3.socket.send(_tinyMsgpack["default"].encode(message), function (error) {
           if (error) return reject(error);
           resolve();
         });
@@ -394,10 +393,11 @@ var CommonClient = /*#__PURE__*/function (_EventEmitter) {
       });
       this.socket.addEventListener("message", function (_ref2) {
         var message = _ref2.data;
-        if (message instanceof ArrayBuffer) message = Buffer.from(message).toString();
 
+        // if (message instanceof ArrayBuffer)
+        //     message = Buffer.from(message).toString()
         try {
-          message = _circularJson["default"].parse(message);
+          message = _tinyMsgpack["default"].decode(message);
         } catch (error) {
           return;
         } // check if any listeners are attached and forward event
@@ -418,7 +418,7 @@ var CommonClient = /*#__PURE__*/function (_EventEmitter) {
         }
 
         if (!_this4.queue[message.id]) {
-          // general JSON RPC 2.0 events
+          // general MessagePack events
           if (message.method && message.params) {
             // run as microtask so that pending queue messages are resolved first
             return Promise.resolve().then(function () {

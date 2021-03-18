@@ -6,7 +6,7 @@
 const should = require("chai").should()
 const expect = require("chai").expect
 const WebSocket = require("ws")
-
+const msgpack = require("tiny-msgpack")
 const WebSocketServer = require("../dist").Server
 const SERVER_HOST = "localhost"
 const SERVER_PORT = 0 // random free port
@@ -227,7 +227,7 @@ describe("Server", function()
                 "/chatroom")
                 .then((ws) =>
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: rpc_id,
                         jsonrpc: "2.0",
                         method: "sendMsg",
@@ -236,7 +236,7 @@ describe("Server", function()
 
                     ws.once("message", function(message)
                     {
-                        message = JSON.parse(message)
+                        message = msgpack.decode(message)
 
                         message.id.should.equal(rpc_id)
                         message.result.should.equal("Message received")
@@ -437,16 +437,15 @@ describe("Server", function()
             {
                 connect(port, host).then((ws) =>
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: rpc_id,
-                        jsonrpc: "2.0",
                         method: "sqrt",
                         params: [4]
                     }))
 
                     ws.once("message", function(message)
                     {
-                        message = JSON.parse(message)
+                        message = msgpack.decode(message)
 
                         message.id.should.equal(rpc_id)
                         message.result.should.equal(2)
@@ -467,7 +466,7 @@ describe("Server", function()
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: rpc_id,
                         jsonrpc: "2.0",
                         method: "subtract",
@@ -476,7 +475,7 @@ describe("Server", function()
 
                     ws.on("message", function(message)
                     {
-                        message = JSON.parse(message)
+                        message = msgpack.decode(message)
 
                         message.id.should.equal(rpc_id)
                         message.result.should.equal(19)
@@ -497,7 +496,7 @@ describe("Server", function()
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: rpc_id,
                         jsonrpc: "2.0",
                         method: "subtract",
@@ -510,7 +509,7 @@ describe("Server", function()
 
                     ws.on("message", function(message)
                     {
-                        message = JSON.parse(message)
+                        message = msgpack.decode(message)
 
                         message.id.should.equal(rpc_id)
                         message.result.should.equal(19)
@@ -527,44 +526,44 @@ describe("Server", function()
                 })
             })
 
-            it("should return a valid response with circular object references", function(done)
-            {
-                connect(port, host).then(function(ws)
-                {
-                    ws.send(JSON.stringify({
-                        id: rpc_id,
-                        jsonrpc: "2.0",
-                        method: "circular"
-                    }))
-
-                    ws.on("message", function(message)
-                    {
-                        message = JSON.parse(message)
-
-                        message.id.should.equal(rpc_id)
-                        message.result.should.deep.equal({
-                            one: "one",
-                            two: "two",
-                            ref: "~result"
-                        })
-
-                        rpc_id++
-                        ws.close()
-                        done()
-                    })
-
-                    ws.once("error", function(error)
-                    {
-                        done(error)
-                    })
-                })
-            })
-
+            //         it("should return a valid response with circular object references", function(done)
+            //         {
+            //             connect(port, host).then(function(ws)
+            //             {
+            //                 ws.send(msgpack.encode({
+            //                     id: rpc_id,
+            //                     jsonrpc: "2.0",
+            //                     method: "circular"
+            //                 }))
+            //
+            //                 ws.on("message", function(message)
+            //                 {
+            //                     message = msgpack.decode(message)
+            //
+            //                     message.id.should.equal(rpc_id)
+            //                     message.result.should.deep.equal({
+            //                         one: "one",
+            //                         two: "two",
+            //                         ref: "~result"
+            //                     })
+            //
+            //                     rpc_id++
+            //                     ws.close()
+            //                     done()
+            //                 })
+            //
+            //                 ws.once("error", function(error)
+            //                 {
+            //                     done(error)
+            //                 })
+            //             })
+            //         })
+            //
             it("should respond with -32601 when calling a missing method", function(done)
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: rpc_id,
                         jsonrpc: "2.0",
                         method: "power",
@@ -573,7 +572,7 @@ describe("Server", function()
 
                     ws.on("message", function(message)
                     {
-                        message = JSON.parse(message)
+                        message = msgpack.decode(message)
 
                         message.id.should.equal(rpc_id)
                         message.error.code.should.equal(-32601)
@@ -591,43 +590,18 @@ describe("Server", function()
                 })
             })
 
-            it("should respond with -32700 when called with invalid JSON", function(done)
+            it("should respond with -32602 when request data is null", function(done)
             {
                 connect(port, host).then(function(ws)
                 {
-                    const data = "{\"jsonrpc\": \"2.0\", \"foo}"
-                    ws.send(data)
+                    const data = "null"
+                    ws.send(msgpack.encode(data))
 
                     ws.on("message", function(message)
                     {
-                        message = JSON.parse(message)
-                        message.error.code.should.equal(-32700)
-                        message.error.message.should.equal("Parse error")
-
-                        rpc_id++
-                        ws.close()
-                        done()
-                    })
-
-                    ws.once("error", function(error)
-                    {
-                        done(error)
-                    })
-                })
-            })
-
-            it("should respond with -32600 when request data is null", function(done)
-            {
-                connect(port, host).then(function(ws)
-                {
-                    const data = "null";
-                    ws.send(data)
-
-                    ws.on("message", function(message)
-                    {
-                        message = JSON.parse(message)
-                        message.error.code.should.equal(-32600)
-                        message.error.message.should.equal("Invalid Request")
+                        message = msgpack.decode(message)
+                        message.error.code.should.equal(-32602)
+                        message.error.message.should.equal("Invalid params")
 
                         ws.close()
                         done()
@@ -640,20 +614,19 @@ describe("Server", function()
                 })
             })
 
-            it("should respond with -32600 when called with invalid method name in JSON-RPC 2.0 Request object", function(done)
+            it("should respond with -32600 when called with invalid method name in MSGPACK Request object", function(done)
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: rpc_id,
-                        jsonrpc: "2.0",
                         method: 1,
                         params: "foo"
                     }))
 
                     ws.on("message", function(message)
                     {
-                        message = JSON.parse(message)
+                        message = msgpack.decode(message)
 
                         message.id.should.equal(rpc_id)
                         message.error.code.should.equal(-32600)
@@ -671,20 +644,19 @@ describe("Server", function()
                 })
             })
 
-            it("should respond with -32600 when called with invalid params type in JSON-RPC 2.0 Request object", function(done)
+            it("should respond with -32600 when called with invalid params type in MSGPACK Request object", function(done)
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: rpc_id,
-                        jsonrpc: "2.0",
                         method: "foo",
                         params: "foo"
                     }))
 
                     ws.on("message", function(message)
                     {
-                        message = JSON.parse(message)
+                        message = msgpack.decode(message)
 
                         message.id.should.equal(rpc_id)
                         message.error.code.should.equal(-32600)
@@ -706,7 +678,7 @@ describe("Server", function()
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: rpc_id,
                         jsonrpc: "2.0",
                         method: "throwsSrvError"
@@ -714,7 +686,7 @@ describe("Server", function()
 
                     ws.on("message", function(message)
                     {
-                        message = JSON.parse(message)
+                        message = msgpack.decode(message)
 
                         message.id.should.equal(rpc_id)
                         message.error.code.should.equal(-32050)
@@ -736,7 +708,7 @@ describe("Server", function()
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: rpc_id,
                         jsonrpc: "2.0",
                         method: "throwsJsError"
@@ -744,7 +716,7 @@ describe("Server", function()
 
                     ws.on("message", function(message)
                     {
-                        message = JSON.parse(message)
+                        message = msgpack.decode(message)
 
                         message.id.should.equal(rpc_id)
                         message.error.code.should.equal(-32000)
@@ -769,45 +741,39 @@ describe("Server", function()
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify([
+                    ws.send(msgpack.encode([
                         {
                             id: rpc_id,
-                            jsonrpc: "2.0",
                             method: "greet",
                             params: ["Charles"]
                         },
                         {
                             id: ++rpc_id,
-                            jsonrpc: "2.0",
                             method: "sum",
                             params: [1, 2, 4]
                         },
                         {
                             id: ++rpc_id,
-                            jsonrpc: "2.0",
                             method: "subtract",
                             params: [50, 29]
                         }]))
 
                     ws.on("message", function(message)
                     {
-                        message = JSON.parse(message)
+                        message = msgpack.decode(message)
 
                         expect(message).to.deep.equal([
                             {
-                                jsonrpc: "2.0",
                                 result: "Hello, Charles!",
-                                id: 9
+                                id: 7
                             },
                             {
-                                jsonrpc: "2.0",
                                 result: 7,
-                                id: 10
+                                id: 8
                             },
                             {
-                                jsonrpc: "2.0",
                                 result: 21,
-                                id: 11
+                                id: 9
                             }])
 
                         rpc_id++
@@ -827,90 +793,16 @@ describe("Server", function()
                 connect(port, host).then(function(ws)
                 {
                     const data =
-                        "[{\"jsonrpc\": \"2.0\", \"method\": \"sum\", \"params\": [1,2,4], \"id\": \"1\"}, " +
-                        "{\"jsonrpc\": \"2.0\", \"method\""
+                                "[{\"jsonrpc\": \"2.0\", \"method\": \"sum\", \"params\": [1,2,4], \"id\": \"1\"}, " +
+                                "{\"jsonrpc\": \"2.0\", \"method\""
 
-                    ws.send(data)
-
-                    ws.on("message", function(message)
-                    {
-                        message = JSON.parse(message)
-                        message.error.code.should.equal(-32700)
-                        message.error.message.should.equal("Parse error")
-
-                        rpc_id++
-                        ws.close()
-                        done()
-                    })
-
-                    ws.once("error", function(error)
-                    {
-                        done(error)
-                    })
-                })
-            })
-
-            it("should respond with -32600 when called with an empty array", function(done)
-            {
-                connect(port, host).then(function(ws)
-                {
-                    ws.send("[]")
+                    ws.send(msgpack.encode(data))
 
                     ws.on("message", function(message)
                     {
-                        message = JSON.parse(message)
-                        message.error.code.should.equal(-32600)
-                        message.error.message.should.equal("Invalid Request")
-
-                        rpc_id++
-                        ws.close()
-                        done()
-                    })
-
-                    ws.once("error", function(error)
-                    {
-                        done(error)
-                    })
-                })
-            })
-
-            it("should respond with -32600 when called with invalid non-empty array", function(done)
-            {
-                connect(port, host).then(function(ws)
-                {
-                    ws.send("[1]")
-
-                    ws.on("message", function(message)
-                    {
-                        message = JSON.parse(message)
-                        message.should.be.an("array")
-                        message[0].error.code.should.equal(-32600)
-                        message[0].error.message.should.equal("Invalid Request")
-
-                        rpc_id++
-                        ws.close()
-                        done()
-                    })
-
-                    ws.once("error", function(error)
-                    {
-                        done(error)
-                    })
-                })
-            })
-
-            it("should respond with -32600 when called with invalid data", function(done)
-            {
-                connect(port, host).then(function(ws)
-                {
-                    ws.send("[1,2,3]")
-
-                    ws.on("message", function(message)
-                    {
-                        message = JSON.parse(message)
-                        message.should.be.an("array")
-                        message[0].error.code.should.equal(-32600)
-                        message[0].error.message.should.equal("Invalid Request")
+                        message = msgpack.decode(message)
+                        message.error.code.should.equal(-32602)
+                        message.error.message.should.equal("Invalid params")
 
                         rpc_id++
                         ws.close()
@@ -928,7 +820,7 @@ describe("Server", function()
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify([
+                    ws.send(msgpack.encode([
                         {
                             jsonrpc: "2.0",
                             method: "greet",
@@ -959,7 +851,7 @@ describe("Server", function()
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         jsonrpc: "2.0",
                         method: "update"
                     }), function()
@@ -985,15 +877,14 @@ describe("Server", function()
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: ++rpc_id,
-                        jsonrpc: "2.0",
                         method: "rpc.on"
                     }))
 
                     ws.on("message", function(message)
                     {
-                        message = JSON.parse(message)
+                        message = msgpack.decode(message)
                         message.error.code.should.equal(-32000)
                         message.error.message.should.equal("Event not provided")
 
@@ -1013,16 +904,15 @@ describe("Server", function()
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: ++rpc_id,
-                        jsonrpc: "2.0",
                         method: "rpc.on",
                         params: ["newMail"]
                     }))
 
                     ws.on("message", function(message)
                     {
-                        message = JSON.parse(message)
+                        message = msgpack.decode(message)
 
                         message.id.should.equal(rpc_id)
                         message.result.newMail.should.equal("ok")
@@ -1043,16 +933,15 @@ describe("Server", function()
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: ++rpc_id,
-                        jsonrpc: "2.0",
                         method: "rpc.on",
                         params: ["newMail"]
                     }))
 
                     ws.on("message", function(message)
                     {
-                        try { message = JSON.parse(message) }
+                        try { message = msgpack.decode(message) }
 
                         catch (error) { done(error) }
 
@@ -1079,16 +968,15 @@ describe("Server", function()
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: ++rpc_id,
-                        jsonrpc: "2.0",
                         method: "rpc.on",
                         params: ["updatedNews"]
                     }))
 
                     ws.on("message", function(message)
                     {
-                        try { message = JSON.parse(message) }
+                        try { message = msgpack.decode(message) }
 
                         catch (error) { done(error) }
 
@@ -1116,16 +1004,15 @@ describe("Server", function()
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: ++rpc_id,
-                        jsonrpc: "2.0",
                         method: "rpc.on",
                         params: ["updatedNews"]
                     }))
 
                     ws.on("message", function(message)
                     {
-                        try { message = JSON.parse(message) }
+                        try { message = msgpack.decode(message) }
 
                         catch (error) { done(error) }
 
@@ -1149,63 +1036,62 @@ describe("Server", function()
                 })
             })
 
-            it("should emit an event with circular objects to subscribed clients", function(done)
-            {
-                connect(port, host).then(function(ws)
-                {
-                    ws.send(JSON.stringify({
-                        id: ++rpc_id,
-                        jsonrpc: "2.0",
-                        method: "rpc.on",
-                        params: ["circularUpdate"]
-                    }))
-
-                    ws.on("message", function(message)
-                    {
-                        try { message = JSON.parse(message) }
-
-                        catch (error) { done(error) }
-
-                        if (message.notification)
-                        {
-                            message.notification.should.equal("circularUpdate")
-                            expect(message.params).to.deep.equal({
-                                one: "one",
-                                two: "two",
-                                ref: "~params"
-                            })
-
-                            ws.close()
-                            return done()
-                        }
-
-                        if (message.result.circularUpdate === "ok")
-                        {
-                            const Obj = function()
-                            {
-                                this.one = "one"
-                                this.two = "two"
-                                this.ref = this
-                            }
-
-                            return server.emit("circularUpdate", new Obj())
-                        }
-                    })
-
-                    ws.once("error", function(error)
-                    {
-                        done(error)
-                    })
-                })
-            })
-
+            //         it("should emit an event with circular objects to subscribed clients", function(done)
+            //         {
+            //             connect(port, host).then(function(ws)
+            //             {
+            //                 ws.send(msgpack.encode({
+            //                     id: ++rpc_id,
+            //                     jsonrpc: "2.0",
+            //                     method: "rpc.on",
+            //                     params: ["circularUpdate"]
+            //                 }))
+            //
+            //                 ws.on("message", function(message)
+            //                 {
+            //                     try { message = msgpack.decode(message) }
+            //
+            //                     catch (error) { done(error) }
+            //
+            //                     if (message.notification)
+            //                     {
+            //                         message.notification.should.equal("circularUpdate")
+            //                         expect(message.params).to.deep.equal({
+            //                             one: "one",
+            //                             two: "two",
+            //                             ref: "~params"
+            //                         })
+            //
+            //                         ws.close()
+            //                         return done()
+            //                     }
+            //
+            //                     if (message.result.circularUpdate === "ok")
+            //                     {
+            //                         const Obj = function()
+            //                         {
+            //                             this.one = "one"
+            //                             this.two = "two"
+            //                             this.ref = this
+            //                         }
+            //
+            //                         return server.emit("circularUpdate", new Obj())
+            //                     }
+            //                 })
+            //
+            //                 ws.once("error", function(error)
+            //                 {
+            //                     done(error)
+            //                 })
+            //             })
+            //         })
+            //
             it("should unsubscribe a user from an event", function(done)
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: ++rpc_id,
-                        jsonrpc: "2.0",
                         method: "rpc.on",
                         params: ["newMail"]
                     }))
@@ -1214,13 +1100,13 @@ describe("Server", function()
 
                     ws.on("message", function(message)
                     {
-                        message = JSON.parse(message)
+                        message = msgpack.decode(message)
 
                         if (message.result.newMail === "ok" && subscribed === false)
                         {
                             subscribed = true
 
-                            return ws.send(JSON.stringify({
+                            return ws.send(msgpack.encode({
                                 id: ++rpc_id,
                                 jsonrpc: "2.0",
                                 method: "rpc.off",
@@ -1250,7 +1136,7 @@ describe("Server", function()
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: ++rpc_id,
                         jsonrpc: "2.0",
                         method: "rpc.login"
@@ -1258,7 +1144,7 @@ describe("Server", function()
 
                     ws.on("message", function(message)
                     {
-                        message = JSON.parse(message)
+                        message = msgpack.decode(message)
 
                         message.id.should.equal(rpc_id)
                         message.error.code.should.equal(-32604)
@@ -1280,9 +1166,8 @@ describe("Server", function()
             {
                 connect(port, host).then(function(ws)
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: ++rpc_id,
-                        jsonrpc: "2.0",
                         method: "rpc.login",
                         params: {
                             username: "foo",
@@ -1292,7 +1177,7 @@ describe("Server", function()
 
                     ws.on("message", function(message)
                     {
-                        message = JSON.parse(message)
+                        message = msgpack.decode(message)
 
                         message.id.should.equal(rpc_id)
                         message.result.should.equal(false)
@@ -1313,16 +1198,15 @@ describe("Server", function()
             {
                 connect(port, host).then((ws) =>
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: rpc_id,
-                        jsonrpc: "2.0",
                         method: "sqrt_protected",
                         params: [4]
                     }))
 
                     ws.once("message", function(message)
                     {
-                        message = JSON.parse(message)
+                        message = msgpack.decode(message)
 
                         message.id.should.equal(rpc_id)
                         message.error.code.should.equal(-32605)
@@ -1344,9 +1228,8 @@ describe("Server", function()
             {
                 connect(port, host).then((ws) =>
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: ++rpc_id,
-                        jsonrpc: "2.0",
                         method: "rpc.login",
                         params: {
                             username: "foo",
@@ -1356,7 +1239,7 @@ describe("Server", function()
 
                     ws.on("message", function(message)
                     {
-                        message = JSON.parse(message)
+                        message = msgpack.decode(message)
 
                         message.id.should.equal(rpc_id)
                         message.result.should.equal(true)
@@ -1377,9 +1260,8 @@ describe("Server", function()
             {
                 connect(port, host).then((ws) =>
                 {
-                    ws.send(JSON.stringify({
+                    ws.send(msgpack.encode({
                         id: ++rpc_id,
-                        jsonrpc: "2.0",
                         method: "rpc.login",
                         params: {
                             username: "foo",
@@ -1389,16 +1271,15 @@ describe("Server", function()
 
                     ws.once("message", function(message)
                     {
-                        ws.send(JSON.stringify({
+                        ws.send(msgpack.encode({
                             id: ++rpc_id,
-                            jsonrpc: "2.0",
                             method: "sqrt_protected",
                             params: [4]
                         }))
 
                         ws.once("message", function(message)
                         {
-                            message = JSON.parse(message)
+                            message = msgpack.decode(message)
 
                             rpc_id++
                             ws.close()

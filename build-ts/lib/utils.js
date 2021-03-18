@@ -11,7 +11,7 @@ const errors = new Map([
     [-32700, "Parse error"]
 ]);
 /**
- * Creates a JSON-RPC 2.0-compliant error.
+ * Creates a MSGPACK-compliant error.
  * @param {Number} code - error code
  * @param {String} details - error details
  * @return {Object}
@@ -25,4 +25,12 @@ function createError(code, details) {
         error["data"] = details;
     return error;
 }
-export { createError };
+/**
+ * Creates a ArrayBuffer from a uInt8Array.
+ * @param {Uint8Array} array - data
+ * @return {ArrayBuffer}
+ */
+function typedArrayToBuffer(array) {
+    return array.buffer.slice(array.byteOffset, array.byteLength + array.byteOffset);
+}
+export { createError, typedArrayToBuffer };
